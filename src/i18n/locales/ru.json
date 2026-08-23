@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "invitation": "Приглашение",
+    "events": "Мероприятия",
+    "reservation": "Бронирование",
+    "receptionSeating": "Рассадка",
+    "happeningNow": "Сейчас"
+  },
+  "pages": {
+    "comingSoon": "Скоро здесь появится содержимое.",
+    "invitation": {
+      "intro": "Мы рады пригласить вас отпраздновать вместе с нами."
+    }
+  },
+  "language": {
+    "el": "Греческий",
+    "en": "Английский",
+    "ru": "Русский"
+  },
+  "eventType": {
+    "Marriage": "Свадьба",
+    "Christening": "Крещение"
+  }
+}

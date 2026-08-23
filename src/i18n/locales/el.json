@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "invitation": "Πρόσκληση",
+    "events": "Εκδηλώσεις",
+    "reservation": "Κράτηση",
+    "receptionSeating": "Θέσεις Δεξίωσης",
+    "happeningNow": "Τώρα"
+  },
+  "pages": {
+    "comingSoon": "Σύντομα κοντά σας.",
+    "invitation": {
+      "intro": "Με χαρά σας προσκαλούμε να γιορτάσετε μαζί μας."
+    }
+  },
+  "language": {
+    "el": "Ελληνικά",
+    "en": "Αγγλικά",
+    "ru": "Ρωσικά"
+  },
+  "eventType": {
+    "Marriage": "Γάμος",
+    "Christening": "Βάπτιση"
+  }
+}

@@ -1,1 +1,124 @@
 @import "tailwindcss";
+
+/* Self-hosted fonts (downloaded from Google Fonts) — Alegreya & Alegreya
+   Sans, chosen for Greek + Latin + Cyrillic glyph coverage so headings and
+   body copy stay consistent across el/en/ru without a per-language swap. */
+@font-face {
+  font-family: "Alegreya";
+  src: url("./assets/fonts/alegreya/alegreya-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya";
+  src: url("./assets/fonts/alegreya/alegreya-400-italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya";
+  src: url("./assets/fonts/alegreya/alegreya-600.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya";
+  src: url("./assets/fonts/alegreya/alegreya-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  src: url("./assets/fonts/alegreya-sans/alegreya-sans-400.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  src: url("./assets/fonts/alegreya-sans/alegreya-sans-500.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Alegreya Sans";
+  src: url("./assets/fonts/alegreya-sans/alegreya-sans-700.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --color-natural-bg: #fdfbf7;
+  --color-natural-text: #4a4a3a;
+  --color-natural-accent: #7c7c5c;
+  --color-natural-border: #e5e0d8;
+  --color-natural-muted: #6b6b5b;
+  --color-natural-soft: #f5f5f0;
+  --color-natural-dashed: #d1cdc2;
+
+  --font-sans: "Alegreya Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Alegreya", Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Consolas, monospace;
+  --font-monogram: "Alegreya", Georgia, serif;
+}
+
+body {
+  background-color: #fdfbf7;
+  color: #4a4a3a;
+  font-family: var(--font-serif);
+}
+
+/* Custom Keyframe Animations list */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Utility Animations */
+.animate-fade-in {
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-spin-slow {
+  animation: spinSlow 15s linear infinite;
+}
+
+/* Custom overlay scrollbar design */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 113, 108, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 113, 108, 0.45);
+}

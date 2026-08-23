@@ -1,0 +1,24 @@
+{
+  "nav": {
+    "invitation": "Invitation",
+    "events": "Events",
+    "reservation": "Reservation",
+    "receptionSeating": "Reception Seating",
+    "happeningNow": "Happening Now"
+  },
+  "pages": {
+    "comingSoon": "Coming soon.",
+    "invitation": {
+      "intro": "We are delighted to invite you to celebrate with us."
+    }
+  },
+  "language": {
+    "el": "Greek",
+    "en": "English",
+    "ru": "Russian"
+  },
+  "eventType": {
+    "Marriage": "Marriage",
+    "Christening": "Christening"
+  }
+}
