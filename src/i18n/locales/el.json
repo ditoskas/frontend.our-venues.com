@@ -4,13 +4,57 @@
     "events": "Εκδηλώσεις",
     "reservation": "Κράτηση",
     "receptionSeating": "Θέσεις Δεξίωσης",
-    "happeningNow": "Τώρα"
+    "happeningNow": "Ζωντανά"
   },
   "pages": {
     "comingSoon": "Σύντομα κοντά σας.",
     "invitation": {
-      "intro": "Με χαρά σας προσκαλούμε να γιορτάσετε μαζί μας."
+      "saveTheDate": "Κρατήστε την Ημερομηνία",
+      "scrollHint": "Δείτε την Πρόσκληση",
+      "countingDown": "Μετράμε αντίστροφα",
+      "dayArrived": "Η Μεγάλη Μέρα Έφτασε!",
+      "storyTitleFallback": "Η Ιστορία μας",
+      "units": {
+        "days_one": "Ημέρα",
+        "days_other": "Ημέρες",
+        "hours_one": "Ώρα",
+        "hours_other": "Ώρες",
+        "minutes_one": "Λεπτό",
+        "minutes_other": "Λεπτά",
+        "seconds_one": "Δευτερόλεπτο",
+        "seconds_other": "Δευτερόλεπτα"
+      }
+    },
+    "access": {
+      "intro": "Αυτή η εκδήλωση είναι ιδιωτική. Εισάγετε το email ή το τηλέφωνό σας για πρόσβαση.",
+      "contactLabel": "Email ή Τηλέφωνο",
+      "sendButton": "Αποστολή",
+      "codeLabel": "Κωδικός Πρόσβασης",
+      "loginButton": "Σύνδεση",
+      "genericError": "Κάτι πήγε στραβά. Δοκιμάστε ξανά."
+    },
+    "reservation": {
+      "intro": "Επιβεβαιώστε την πρόσκλησή σας για να δηλώσετε συμμετοχή.",
+      "welcome": "Καλωσήρθατε, {{name}}",
+      "notYou": "Δεν είστε ο/η {{name}};",
+      "maxAttendeesNote_one": "Μπορείτε να φέρετε έως {{count}} άτομο.",
+      "maxAttendeesNote_other": "Μπορείτε να φέρετε έως {{count}} άτομα.",
+      "attendingQuestion": "Θα παρευρεθείτε;",
+      "attendYes": "Με χαρά αποδέχομαι",
+      "attendNo": "Δυστυχώς δεν θα παρευρεθώ",
+      "partySizeLabel": "Πόσα άτομα θα είστε, συμπεριλαμβανομένου εσάς;",
+      "declineMessage": "Λυπούμαστε που δεν θα μπορέσετε να έρθετε — θα μας λείψετε, ευχαριστούμε που μας ενημερώσατε.",
+      "submitButton": "Επιβεβαίωση Συμμετοχής",
+      "successTitle": "Η συμμετοχή επιβεβαιώθηκε!",
+      "successAttending_one": "Ευχαριστούμε, {{name}}! Σας καταχωρήσαμε ως παρευρισκόμενο/η με {{count}} άτομο.",
+      "successAttending_other": "Ευχαριστούμε, {{name}}! Σας καταχωρήσαμε ως παρευρισκόμενο/η με {{count}} άτομα.",
+      "successDeclined": "Ευχαριστούμε που μας ενημερώσατε, {{name}}.",
+      "searchAnother": "Δήλωση για άλλο άτομο"
     }
+  },
+  "notFound": {
+    "title": "Η σελίδα δεν βρέθηκε",
+    "message": "Ο σύνδεσμος που ακολουθήσατε δεν είναι έγκυρος ή έχει λήξει."
   },
   "language": {
     "el": "Ελληνικά",

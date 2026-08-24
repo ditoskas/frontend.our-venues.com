@@ -64,6 +64,15 @@ Translation strings live in `src/i18n/locales/{el,en,ru}.json`.
   rather than a hardcoded format, so they render in the visitor's chosen
   language regardless of what script the underlying data (e.g. a couple's
   names) is in — see `Monogram.tsx`.
+- Some celebration fields from the backend are **translatable content**,
+  not UI strings: `celebrationInfo.headline`/`quote`/`countdownParagraph`
+  and `timeline[]`/`events[]` items' `title`/`description` each come back
+  as a `LocalizedText` (`{ el, en, ru }`, `null` per language until an
+  admin fills it in — see `PUBLIC-API.md` in the backend). Pick the right
+  one with `pickLocalized(value, i18n.resolvedLanguage)`
+  (`src/lib/localized.ts`), which falls back to `el` (the primary
+  language) then any other set language — never index the object
+  directly, a language can legitimately be `null`.
 
 ## Monogram component
 
@@ -103,6 +112,101 @@ Pages that don't have real content yet render `PlaceholderPage` (title +
 than each getting their own file — give a route its own page component
 under `src/pages/` once it has actual content (see `InvitationPage.tsx`).
 
+## Celebration gate
+
+Every route in this app is scoped to one celebration (wedding/christening),
+identified by the backend's `Celebration.guid`. `src/components/CelebrationGate.tsx`
+sits above `MainLayout` in `App.tsx`'s route tree and, on load:
+
+1. Resolves the id via `resolveCelebrationId()` (`src/lib/celebrationId.ts`)
+   — `window.celebrationId` first (set by whatever embeds/serves the page),
+   falling back to the `?celebrationId=` query param. Neither present/both
+   blank → straight to `/404`.
+2. Calls `GET /api/public/celebration/{id}` (`getPublicCelebration()` in
+   `src/lib/api/celebrations.ts`) and shows `LoadingScreen` while it's in
+   flight.
+3. Any failure — unknown guid, a celebration that isn't public yet, or a
+   network/server error — also redirects to `/404`. The backend
+   deliberately returns the same generic 404 for "no such guid" and "guid
+   exists but not public" (see `backend.o-gamos-mas.com/src/PUBLIC-API.md`
+   — that file is the authoritative contract for every `/api/public/**`
+   route), so the frontend can't and shouldn't try to tell those apart.
+4. On success, the fetched `PublicCelebration` + id are provided to every
+   nested route via `useCelebration()` (`src/context/CelebrationContext.tsx`)
+   — this is what `Navbar` and `InvitationPage` pull the couple's real
+   names/date/type from for `<Monogram>`, instead of hardcoded demo data.
+
+`VITE_CELEBRATION_ID` (`.env.example`/`.env.local`) is a **dev-only**
+convenience — `seedCelebrationIdFromEnv()` in `src/lib/celebrationId.ts`
+sets `window.celebrationId` from it at boot (`main.tsx`), but only if
+`window.celebrationId` isn't already set, so it never masks a real
+embedding host's value. It does **not** replace the `?celebrationId=`
+query param path — both remain supported. The `Dockerfile` bakes the same
+var in as a build `ARG` (Vite env vars are compile-time) with a sample
+guid as the default; override per deployment.
+
+## Private-site access gate
+
+`celebrationInfo.isSitePublic` (from the fetch above) decides whether a
+visitor sees the real site immediately or has to verify first.
+`src/components/PrivacySiteGate.tsx` sits between `CelebrationGate` and
+`MainLayout` in the route tree and, when `isSitePublic` is `false` and
+this browser hasn't verified before (`hasSiteAccess()` in
+`src/lib/siteAccessStorage.ts`, a `localStorage` flag scoped by
+celebration id — not a real session), redirects to `/access` instead of
+rendering `<Outlet />`. `/access` is a sibling route nested under
+`CelebrationGate` too (so it still has `useCelebration()` context for its
+`<Monogram>`), but **outside** `PrivacySiteGate`/`MainLayout` — no navbar,
+just the centered form (`src/pages/AccessGatePage.tsx`).
+
+The form itself is `src/components/GuestLoginForm.tsx` — a two-step
+"contact then code" flow shared with the reservation page below, both
+hitting `GET /api/public/access/confirm` (`confirmAccess()` in
+`src/lib/api/access.ts`) with `guid` + `contact` (email or phone), the
+second step adding `code`. It doesn't know or care what happens after
+verification — it takes an `onVerified(contact, result)` callback.
+`AccessGatePage` passes one that calls `grantSiteAccess()` (sets the
+local flag) and navigates to `/`, where `PrivacySiteGate` re-checks and
+lets it through.
+
+**This is a client-side-only gate, not real access control** —
+`CelebrationGate` already fetched the full celebration (couple info,
+timeline, everything) before `PrivacySiteGate` ever runs, so the data is
+sitting in the page regardless of whether the form was completed; a
+visitor could bypass it via devtools. The backend endpoint is
+**currently a stub** (see `PUBLIC-API.md`) — it always returns success
+with fixed placeholder `displayName`/`maxAttendees`, no code is actually
+generated or delivered anywhere, no `contact` is validated against
+anything. Don't treat either side of this as secure until that's built
+out for real.
+
+## Reservation page
+
+`src/pages/ReservationPage.tsx` (route `/reservation`, inside
+`PrivacySiteGate`/`MainLayout` like the rest of the real site) is the
+RSVP flow, modeled on the reference template's `RsvpConfirmation.tsx`
+component but wired to real endpoints instead of local state:
+
+1. **Guest login** — the same `GuestLoginForm` the access gate uses (see
+   above). Here, `onVerified` stores the verified `contact` string plus
+   the stub's `displayName`/`maxAttendees` in local state and moves to
+   the RSVP form — it does **not** grant site access or navigate away,
+   unlike `AccessGatePage`.
+2. **RSVP form** — "Welcome, {displayName}", then attend yes/no, and if
+   yes, a party-size number input (capped at `maxAttendees` when known).
+   `celebrationInfo.showMaxGuests` gates a note telling the guest their
+   max party size (`maxAttendees` from step 1) — omitted entirely when
+   that flag is off, regardless of whether the number is known.
+3. **Submit** — `submitReservation()` (`src/lib/api/reservations.ts`)
+   calls `GET /api/public/reservations/confirm`, the one guest-facing
+   endpoint in `PUBLIC-API.md` that **isn't** a stub: it matches `contact`
+   against a real guest's phone/email and writes `confirmationDate`/
+   `confirmedAttendees` (or `deniedDate`) on that guest. Unlike the
+   access-gate's endpoint, this one **does** still require
+   `celebrationInfo.isSitePublic === true` (and a future
+   `celebrationDate`) — a guest can log in and fill out the form
+   regardless, but the final submit 404s until the celebration is public.
+
 ## Talking to the backend
 
 Every API call goes through the shared axios instance at
@@ -117,12 +221,20 @@ const { data } = await apiClient.get('/professionals')
 - The instance's `baseURL` comes from `VITE_API_BASE_URL` (see
   `.env.example` / `.env.local`), defaulting to
   `http://localhost:3000/api` — the backend's local dev server.
-- `withCredentials: true` is set because the backend authenticates via a
-  session cookie, not bearer tokens.
-- The backend is still early — most routes are server-rendered admin
-  pages rather than JSON APIs. Before wiring up a new call, check
-  `backend.o-gamos-mas.com/src/app/api/**` for the route, or ask for it
-  to be added there first.
+- This app should only ever call **`/api/public/**`** — per the backend's
+  `PUBLIC-API.md` (`backend.o-gamos-mas.com/src/PUBLIC-API.md`, the
+  authoritative contract), those are the only routes meant to be called
+  directly by this frontend, and they're unauthenticated by design (a
+  `Celebration.guid` is the entire access control, not a session) — no
+  `withCredentials`, no cookies, nothing to log in as. The backend also
+  sets CORS (`Access-Control-Allow-Origin: *`) only on that path prefix
+  (`next.config.ts` → `headers()`), precisely because these routes are
+  meant to be hit cross-origin from here and carry no session to leak.
+  Everything else under `/api/**` is the authenticated admin API and isn't
+  reachable from this app.
+- The backend is still early — check `PUBLIC-API.md` for what's actually
+  documented before wiring up a new call, or ask for a new public route to
+  be added (and documented there) first.
 
 ## Docker
 

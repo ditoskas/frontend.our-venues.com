@@ -9,8 +9,52 @@
   "pages": {
     "comingSoon": "Coming soon.",
     "invitation": {
-      "intro": "We are delighted to invite you to celebrate with us."
+      "saveTheDate": "Save The Date",
+      "scrollHint": "Read Invitation Scroll",
+      "countingDown": "Counting down the moments",
+      "dayArrived": "Our Beautiful Day Has Arrived!",
+      "storyTitleFallback": "Our Love Story",
+      "units": {
+        "days_one": "Day",
+        "days_other": "Days",
+        "hours_one": "Hour",
+        "hours_other": "Hours",
+        "minutes_one": "Minute",
+        "minutes_other": "Minutes",
+        "seconds_one": "Second",
+        "seconds_other": "Seconds"
+      }
+    },
+    "access": {
+      "intro": "This celebration is private. Enter your email or phone to request access.",
+      "contactLabel": "Email or Phone",
+      "sendButton": "Send",
+      "codeLabel": "Access Code",
+      "loginButton": "Login",
+      "genericError": "Something went wrong. Please try again."
+    },
+    "reservation": {
+      "intro": "Please verify your invitation to RSVP.",
+      "welcome": "Welcome, {{name}}",
+      "notYou": "Not {{name}}?",
+      "maxAttendeesNote_one": "You may bring up to {{count}} guest.",
+      "maxAttendeesNote_other": "You may bring up to {{count}} guests.",
+      "attendingQuestion": "Will you be attending?",
+      "attendYes": "Joyfully Accept",
+      "attendNo": "Regretfully Decline",
+      "partySizeLabel": "How many guests, including yourself?",
+      "declineMessage": "We're sorry you can't make it — we'll miss you, but thank you for letting us know.",
+      "submitButton": "Confirm RSVP",
+      "successTitle": "RSVP Confirmed!",
+      "successAttending_one": "Thank you, {{name}}! We've recorded you as attending with {{count}} guest.",
+      "successAttending_other": "Thank you, {{name}}! We've recorded you as attending with {{count}} guests.",
+      "successDeclined": "Thank you for letting us know, {{name}}.",
+      "searchAnother": "RSVP for someone else"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "The link you followed isn't valid or has expired."
   },
   "language": {
     "el": "Greek",

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Heart, CalendarDays, Ticket, Users, Sparkles, type LucideIcon } from 'lucide-react'
 import { Monogram } from '@/components/Monogram'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
+import { useCelebration } from '@/context/CelebrationContext'
 
 const navItems: { to: string; end?: boolean; labelKey: string; icon: LucideIcon }[] = [
   { to: '/', end: true, labelKey: 'nav.invitation', icon: Heart },
@@ -14,16 +15,18 @@ const navItems: { to: string; end?: boolean; labelKey: string; icon: LucideIcon 
 
 export function Navbar() {
   const { t } = useTranslation()
+  const { celebration } = useCelebration()
+  const { husband, wife } = celebration.coupleInfo
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-natural-border bg-natural-bg/95 backdrop-blur-md">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-4 px-4 md:h-20 sm:px-6">
         <NavLink to="/" className="shrink-0" aria-label={t('nav.invitation')}>
           <Monogram
-            name1="Δημήτρης"
-            name2="Μαρία"
-            date="2026-06-12"
-            type="Marriage"
+            name1={husband.firstName}
+            name2={wife.firstName}
+            date={celebration.celebrationInfo.celebrationDate}
+            type={celebration.type}
             size="sm"
           />
         </NavLink>

@@ -6,7 +6,7 @@ export type MonogramSize = 'sm' | 'lg'
 interface MonogramProps {
   name1: string
   name2: string
-  date: string | Date
+  date: string | Date | null
   type: MonogramType
   size?: MonogramSize
   className?: string
@@ -39,11 +39,13 @@ export function Monogram({ name1, name2, date, type, size = 'lg', className = ''
   const monogramText = isMarriage ? `${initial1}&${initial2}` : `${initial1}${initial2}`
   const namesText = isMarriage ? `${name1} & ${name2}` : `${name1} ${name2}`
 
-  const formattedDate = new Intl.DateTimeFormat(i18n.resolvedLanguage, {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  }).format(typeof date === 'string' ? new Date(date) : date)
+  const formattedDate = date
+    ? new Intl.DateTimeFormat(i18n.resolvedLanguage, {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+      }).format(typeof date === 'string' ? new Date(date) : date)
+    : null
 
   return (
     <div className={`flex items-center gap-3 ${size === 'lg' ? 'sm:gap-6' : ''} ${className}`}>
@@ -60,9 +62,11 @@ export function Monogram({ name1, name2, date, type, size = 'lg', className = ''
 
       <div className={styles.textWrapper}>
         <p className={`font-serif leading-none text-natural-text ${styles.name}`}>{namesText}</p>
-        <p className={`font-sans uppercase leading-none text-natural-muted ${styles.date}`}>
-          {formattedDate}
-        </p>
+        {formattedDate && (
+          <p className={`font-sans uppercase leading-none text-natural-muted ${styles.date}`}>
+            {formattedDate}
+          </p>
+        )}
       </div>
     </div>
   )

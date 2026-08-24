@@ -9,8 +9,58 @@
   "pages": {
     "comingSoon": "Скоро здесь появится содержимое.",
     "invitation": {
-      "intro": "Мы рады пригласить вас отпраздновать вместе с нами."
+      "saveTheDate": "Сохраните дату",
+      "scrollHint": "Смотреть приглашение",
+      "countingDown": "Отсчитываем мгновения",
+      "dayArrived": "Наш чудесный день настал!",
+      "storyTitleFallback": "Наша история",
+      "units": {
+        "days_one": "День",
+        "days_few": "Дня",
+        "days_many": "Дней",
+        "days_other": "Дня",
+        "hours_one": "Час",
+        "hours_few": "Часа",
+        "hours_many": "Часов",
+        "hours_other": "Часа",
+        "minutes_one": "Минута",
+        "minutes_few": "Минуты",
+        "minutes_many": "Минут",
+        "minutes_other": "Минуты",
+        "seconds_one": "Секунда",
+        "seconds_few": "Секунды",
+        "seconds_many": "Секунд",
+        "seconds_other": "Секунды"
+      }
+    },
+    "access": {
+      "intro": "Это мероприятие закрытое. Введите email или телефон, чтобы запросить доступ.",
+      "contactLabel": "Email или Телефон",
+      "sendButton": "Отправить",
+      "codeLabel": "Код доступа",
+      "loginButton": "Войти",
+      "genericError": "Что-то пошло не так. Попробуйте ещё раз."
+    },
+    "reservation": {
+      "intro": "Пожалуйста, подтвердите приглашение, чтобы ответить.",
+      "welcome": "Добро пожаловать, {{name}}",
+      "notYou": "Это не {{name}}?",
+      "maxAttendeesNote": "Вы можете указать до {{count}} гостей (включая себя).",
+      "attendingQuestion": "Вы будете присутствовать?",
+      "attendYes": "С радостью подтверждаю",
+      "attendNo": "К сожалению, не смогу",
+      "partySizeLabel": "Сколько гостей, включая вас?",
+      "declineMessage": "Жаль, что вы не сможете прийти — нам будет вас не хватать, спасибо, что сообщили.",
+      "submitButton": "Подтвердить участие",
+      "successTitle": "Участие подтверждено!",
+      "successAttending": "Спасибо, {{name}}! Мы записали вас как участника. Количество гостей: {{count}}.",
+      "successDeclined": "Спасибо, что сообщили, {{name}}.",
+      "searchAnother": "Ответить за другого человека"
     }
+  },
+  "notFound": {
+    "title": "Страница не найдена",
+    "message": "Ссылка, по которой вы перешли, недействительна или устарела."
   },
   "language": {
     "el": "Греческий",
