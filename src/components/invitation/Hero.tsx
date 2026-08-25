@@ -4,7 +4,10 @@ import { useCelebration } from '@/context/CelebrationContext'
 import { resolveBackendAssetUrl } from '@/lib/apiClient'
 import { pickLocalized } from '@/lib/localized'
 
-const FALLBACK_HERO_IMAGE =
+// Exported so other pages needing "the hero banner" (e.g. LiveDisplayPage's
+// no-events-yet fallback) resolve the exact same image/fallback this
+// section uses, rather than duplicating the URL.
+export const FALLBACK_HERO_IMAGE =
   'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1920&q=80'
 
 export function Hero() {

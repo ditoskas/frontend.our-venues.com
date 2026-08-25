@@ -30,6 +30,7 @@
       "contactLabel": "Email or Phone",
       "sendButton": "Send",
       "codeLabel": "Access Code",
+      "codeIssuedNote": "Your code is {{code}} — shown here directly for now, no email/SMS is sent yet.",
       "loginButton": "Login",
       "genericError": "Something went wrong. Please try again."
     },
@@ -50,6 +51,58 @@
       "successAttending_other": "Thank you, {{name}}! We've recorded you as attending with {{count}} guests.",
       "successDeclined": "Thank you for letting us know, {{name}}.",
       "searchAnother": "RSVP for someone else"
+    },
+    "happeningNow": {
+      "addButton": "Add Photo",
+      "modalTitle": "Share a Photo",
+      "close": "Close",
+      "loginIntro": "Verify your invitation to share a photo.",
+      "locationLabel": "Location",
+      "titleLabel": "Title",
+      "descriptionLabel": "Description (optional)",
+      "imageLabel": "Photo",
+      "imagePlaceholder": "Choose a photo",
+      "sendButton": "Send",
+      "successMessage": "Thanks for sharing — your photo is now live.",
+      "loading": "Loading the live feed…",
+      "loadError": "Couldn't load the live feed. Please try again.",
+      "empty": "No photos yet. Be the first to share a moment!"
+    },
+    "events": {
+      "loading": "Loading the map…",
+      "loadError": "Couldn't load the map. Please try again.",
+      "noKey": "Map unavailable.",
+      "empty": "No events have been added yet.",
+      "past": "Past",
+      "upcoming": "Upcoming",
+      "noLocation": "Location not set yet",
+      "directions": "Get Directions"
+    },
+    "live": {
+      "shareMemories": "Share your memories with us!"
+    },
+    "receptionSeating": {
+      "empty": "Seating hasn't been configured yet.",
+      "layoutEmpty": "The seating chart for this event hasn't been configured yet.",
+      "yourTableBadge": "You",
+      "tableGuestsTitle": "Guests at Table {{code}}",
+      "tableGuestsDefaultTitle": "Table Guests",
+      "tableMaxPeople": "Seats up to {{count}} guests",
+      "selectTablePrompt": "Click a table to see who's sitting there.",
+      "searchPlaceholder": "Search your name…",
+      "searchNoResults": "No guest matches that name.",
+      "noGuestsAtTable": "No guests assigned to this table yet.",
+      "guestAttendees_one": "{{count}} guest",
+      "guestAttendees_other": "{{count}} guests",
+      "closePanel": "Close"
+    },
+    "guestList": {
+      "title": "Guest List",
+      "searchPlaceholder": "Search by name or table…",
+      "searchNoResults": "No guest matches your search.",
+      "columnTable": "Table",
+      "columnGuest": "Guest",
+      "columnAttendees": "Guests"
     }
   },
   "notFound": {

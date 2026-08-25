@@ -169,16 +169,37 @@ verification — it takes an `onVerified(contact, result)` callback.
 local flag) and navigates to `/`, where `PrivacySiteGate` re-checks and
 lets it through.
 
-**This is a client-side-only gate, not real access control** —
+The backend endpoint is real (see `PUBLIC-API.md`): step 1 matches
+`contact` against one of the celebration's actual guests (phone exact,
+email case-insensitive) and generates a genuine 6-digit code, only while
+the celebration is "active" (now before `celebrationDate + 1 day`); step
+2 verifies that code (single-use, 10-minute expiry) and returns the
+guest's real `displayName`/`maxAttendees`. **There's no email/SMS
+delivery integration yet** — the backend hands the code straight back in
+the step-1 response, and `GuestLoginForm` displays it inline
+(`pages.access.codeIssuedNote`) so the flow is actually completable until
+real delivery is wired up. The response also includes a signed guest
+session `token` (`ConfirmAccessResult.token`, expiring at the same
+`celebrationDate + 1 day`) — `GuestLoginForm` persists both `contact` and
+`token` to `src/lib/guestSessionStorage.ts` (`setVerifiedGuestSession()`,
+keyed by celebration id, self-expiring at the same moment the token does)
+on every successful verify. This is what lets a returning visit (or
+switching between the access gate, reservation page, and the "add a Live
+Events photo" modal within one browser session) skip straight past the
+login step — see "Happening Now" below for the one place the `token`
+itself is actually sent to the backend, not just remembered.
+`grantSiteAccess()`'s separate `localStorage` flag is still the only thing
+gating `PrivacySiteGate` — the two storages track different things
+(site-wide access vs. this specific guest's identity) and aren't tied
+together.
+
+**This is still a client-side-only gate, not real access control** —
 `CelebrationGate` already fetched the full celebration (couple info,
 timeline, everything) before `PrivacySiteGate` ever runs, so the data is
-sitting in the page regardless of whether the form was completed; a
-visitor could bypass it via devtools. The backend endpoint is
-**currently a stub** (see `PUBLIC-API.md`) — it always returns success
-with fixed placeholder `displayName`/`maxAttendees`, no code is actually
-generated or delivered anywhere, no `contact` is validated against
-anything. Don't treat either side of this as secure until that's built
-out for real.
+sitting in the page regardless of whether the form was completed, and the
+`localStorage` flag it sets isn't tied to the backend's `token` at all —
+a visitor could bypass it via devtools. Don't treat this as secure, even
+though the code/verification behind it is now real.
 
 ## Reservation page
 
@@ -189,9 +210,9 @@ component but wired to real endpoints instead of local state:
 
 1. **Guest login** — the same `GuestLoginForm` the access gate uses (see
    above). Here, `onVerified` stores the verified `contact` string plus
-   the stub's `displayName`/`maxAttendees` in local state and moves to
-   the RSVP form — it does **not** grant site access or navigate away,
-   unlike `AccessGatePage`.
+   the verified guest's `displayName`/`maxAttendees` in local state and
+   moves to the RSVP form — it does **not** grant site access or navigate
+   away, unlike `AccessGatePage`.
 2. **RSVP form** — "Welcome, {displayName}", then attend yes/no, and if
    yes, a party-size number input (capped at `maxAttendees` when known).
    `celebrationInfo.showMaxGuests` gates a note telling the guest their
@@ -206,6 +227,130 @@ component but wired to real endpoints instead of local state:
    `celebrationInfo.isSitePublic === true` (and a future
    `celebrationDate`) — a guest can log in and fill out the form
    regardless, but the final submit 404s until the celebration is public.
+
+## Happening Now / Live Events
+
+`src/pages/HappeningNowPage.tsx` (route `/happening-now`, gated by
+`celebrationInfo.showLive` the same way other optional pages are — a
+`pages.comingSoon` placeholder when it's off) shows the celebration's
+guest-submitted photo feed (`GET /api/public/celebration/{guid}/live-events`,
+`getLiveEvents()` in `src/lib/api/liveEvents.ts`) and an "Add" button
+opening `src/components/live-events/AddLiveEventModal.tsx`.
+
+The modal is **login (skippable) then the post form**, not always both:
+
+1. **Guest login** — the same `GuestLoginForm` the access gate and
+   reservation page use, but skipped entirely if this browser already has
+   an unexpired verified session for this celebration in
+   `src/lib/guestSessionStorage.ts` (`getVerifiedGuestSession()`) — from
+   this same modal earlier, the access gate, or the reservation page. When
+   shown, `onVerified` just pulls `result.token` into local state (it was
+   already persisted to storage by `GuestLoginForm` itself — see "Private-
+   site access gate" above) and moves to the form.
+2. **Post form** — location (an `EventItem` dropdown, preselected to
+   whichever event's `date` is nearest to now), title, description,
+   image.
+3. **Submit** — `submitLiveEvent()` (`src/lib/api/liveEvents.ts`) calls
+   `POST /api/public/live-events` (see `PUBLIC-API.md`) — the
+   **logged-in-guest** endpoint, distinct from
+   `POST /api/public/celebration/{guid}/live-events`: it sends the guest
+   session `token` as `Authorization: Bearer <token>` and nothing else
+   identifying — no `guid`, no `contact` — since the backend decodes the
+   celebration and guest identity from the token itself. 401s if the
+   token is missing/invalid/expired, so a stale/tampered stored session
+   fails loudly rather than silently posting as the wrong guest.
+   `PublicLiveEventItem.status` (`"pending"` | `"published"`) comes back
+   on the created item — this app doesn't currently branch on it (no
+   "your photo is awaiting approval" messaging yet), it's just there if a
+   future UI wants it. Whether a fresh submission starts as `"pending"` or
+   `"published"` is entirely the backend's call
+   (`Celebration.isConfirmationRequiredOnLiveEvents`, admin-only setting,
+   not exposed on the public celebration response) — this app has no
+   input into or visibility of that decision.
+
+## Events page
+
+`src/pages/EventsPage.tsx` (route `/events`, not gated by any
+`celebrationInfo.show*` flag — Events is always visible, unlike Reception
+Seating/Happening Now) is a full-width, edge-to-edge layout deliberately
+breaking from every other page's centered `max-w-* mx-auto` shape: a
+Google Map filling the remaining viewport below the sticky navbar
+(`h-[calc(100vh-4.5rem)]`/`md:h-[calc(100vh-5rem)]`, matching `Navbar`'s
+own `h-18`/`md:h-20`) with a sidebar listing `celebration.events`
+alongside it — stacked on mobile (sidebar on top, fixed `h-64`), side by
+side on desktop (`md:w-96` sidebar).
+
+- **Sorting**: `sortEventsDesc()` sorts by `date` descending (latest
+  first); events with no `date` at all sort last. As the celebration's own
+  multi-day event list plays out, this naturally splits into already-past
+  entries settling toward the bottom and upcoming ones staying near the
+  top.
+- **Past vs. upcoming styling**: `isPastEvent()` (`date` before now) drives
+  both a sidebar badge (`pages.events.past`/`upcoming`) and dimming
+  (`opacity-60`) on past rows, and a differently-colored marker on the map
+  (`PAST_MARKER_COLOR` muted gray vs. `FUTURE_MARKER_COLOR` the
+  `natural-accent` token) — both derived independently at render time from
+  the same `isPastEvent()` call, not a single shared "past" list computed
+  once.
+- **Marker shape**: not Google's default red pin, and not a plain flat
+  circle either (an earlier version used one — explicitly replaced after
+  feedback that it looked wrong on the map). `pinIconUrl()` builds a small
+  inline SVG data URI: a filled teardrop using the *exact same outline*
+  lucide-react's own `MapPin` renders (so the marker on the map echoes
+  `pages.events.noLocation`'s inline icon in the sidebar), with a light
+  circle "hole" punched near the top for the classic pin look. `pinIcon()`
+  wraps that as a `google.maps.Icon` (`scaledSize`/`anchor` sized off the
+  shared `MARKER_SIZE` constant, anchored at the pin's tip, not its
+  center) — swap `pinIconUrl()`'s SVG markup if the shape itself ever
+  needs to change again, the color/sizing plumbing around it shouldn't
+  need to.
+- **Markers only for events with a point**: `hasPoint()` (both `mapLat`
+  and `mapLng` set) gates whether an event gets a `google.maps.Marker` at
+  all — an event missing map data still lists in the sidebar (with a
+  `pages.events.noLocation` hint) but isn't clickable and never appears on
+  the map. `map.fitBounds()` centers/zooms to fit every mapped event
+  (falls back to a single-point center+zoom for exactly one, or Athens at
+  a wide zoom — `DEFAULT_CENTER`, same fallback the admin's own map picker
+  uses — when there are none).
+- **The popup**: clicking a marker *or* its sidebar row calls the same
+  `openInfoFor()`, which pans the map to that event's point and opens one
+  shared `google.maps.InfoWindow` — its content isn't a plain HTML string
+  but a small `EventInfoCard` React component, rendered into a detached
+  container via `react-dom/client`'s `createRoot()` (the InfoWindow's
+  content lives outside the app's React tree, so that component receives
+  already-localized/formatted plain-string props rather than calling
+  `useTranslation()`/`pickLocalized()` itself). The card shows title,
+  date, area, address, description, and a "Get Directions"
+  (`pages.events.directions`) link — `target="_blank"`, opening Google
+  Maps' own directions UI (`https://www.google.com/maps/dir/?api=1&destination=...`,
+  lat/lng when available, else the joined address string) in a new tab.
+- **Loading the API**: `src/lib/googleMaps.ts` — a from-scratch copy of
+  backend.o-gamos-mas.com's own `lib/googleMaps.ts` (script-tag injection,
+  cached loading promise), not shared code since the two apps don't share
+  a package. **Deliberately omits `&loading=async`** from the script URL —
+  with that flag, the script's `onload` fires once Google's small
+  bootstrap loader has run but *before* `google.maps.*` classes are
+  actually populated, so checking `window.google?.maps` in `onload` races
+  it and can resolve too early (hit this live during development — the
+  page fell into its `error` state despite the script itself returning
+  200). Omitting the flag falls back to the classic loading behavior,
+  where the full namespace is guaranteed populated by the time `onload`
+  fires. The backend's copy of this loader had the same latent bug and
+  was fixed the same way.
+- **Env var**: `VITE_GOOGLE_MAPS_API_KEY` (`.env.example`/`.env.local`,
+  and `VITE_GOOGLE_MAPS_API_KEY` build `ARG` in `Dockerfile`) — the same
+  underlying Google Maps API key as the backend admin's
+  `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (same Google Cloud project, same Maps
+  JavaScript API), just under Vite's env prefix instead of Next's.
+  Degrades gracefully when unset: the sidebar list still works, the map
+  area shows a `pages.events.noKey` message instead.
+- **Types**: `@types/google.maps` devDependency, plus `"google.maps"`
+  added to `tsconfig.app.json`'s `compilerOptions.types` array — that
+  array being explicit (`["vite/client"]` only, previously) means
+  TypeScript does **not** auto-include every `@types/*` package the way a
+  default/unset `types` option would; any future global-namespace type
+  package (like this one) needs to be added there explicitly or it won't
+  resolve.
 
 ## Talking to the backend
 

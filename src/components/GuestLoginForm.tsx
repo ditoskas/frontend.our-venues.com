@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Send, LogIn } from 'lucide-react'
 import { useCelebration } from '@/context/CelebrationContext'
 import { confirmAccess, type ConfirmAccessResult } from '@/lib/api/access'
+import { setVerifiedGuestSession } from '@/lib/guestSessionStorage'
 
 type Step = 'contact' | 'code'
 
@@ -15,8 +16,8 @@ interface GuestLoginFormProps {
  * The shared two-step "contact -> code" guest-identification form used by
  * both the site-wide access gate (AccessGatePage) and the reservation
  * page's RSVP guest login — see CLAUDE.md "Private-site access gate" and
- * PUBLIC-API.md's GET /api/public/access/confirm for what this actually
- * does server-side right now (a stub).
+ * PUBLIC-API.md's GET /api/public/access/confirm for the full server-side
+ * contract.
  */
 export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
   const { t } = useTranslation()
@@ -25,6 +26,10 @@ export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
   const [step, setStep] = useState<Step>('contact')
   const [contact, setContact] = useState('')
   const [code, setCode] = useState('')
+  // The backend hands the code straight back in the response (no email/SMS
+  // delivery integration exists yet — see PUBLIC-API.md) — shown here so
+  // the flow is actually completable until that's wired up.
+  const [issuedCode, setIssuedCode] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,6 +41,7 @@ export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
     try {
       const result = await confirmAccess({ guid: celebrationId, contact: contact.trim() })
       if (result.success) {
+        setIssuedCode(result.code ?? null)
         setStep('code')
       } else {
         setError(t('pages.access.genericError'))
@@ -55,6 +61,17 @@ export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
     try {
       const result = await confirmAccess({ guid: celebrationId, contact: contact.trim(), code: code.trim() })
       if (result.success) {
+        // Remembered so a returning visit (or e.g. opening the "add a Live
+        // Events photo" modal right after verifying elsewhere) doesn't ask
+        // for contact + code again, and so the modal has a token to call
+        // POST /api/public/live-events with — see guestSessionStorage.ts.
+        if (result.token && result.expiresAt) {
+          setVerifiedGuestSession(celebrationId, {
+            contact: contact.trim(),
+            token: result.token,
+            expiresAt: result.expiresAt,
+          })
+        }
         onVerified(contact.trim(), result)
       } else {
         setError(t('pages.access.genericError'))
@@ -100,6 +117,12 @@ export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
 
   return (
     <form onSubmit={handleLogin} className="flex w-full flex-col gap-4">
+      {issuedCode && (
+        <p className="rounded-lg border border-natural-border bg-natural-soft px-4 py-2.5 font-sans text-xs text-natural-muted">
+          {t('pages.access.codeIssuedNote', { code: issuedCode })}
+        </p>
+      )}
+
       <div className="flex flex-col gap-1.5 text-left">
         <label htmlFor="code" className="font-sans text-xs uppercase tracking-widest text-natural-muted">
           {t('pages.access.codeLabel')}

@@ -20,6 +20,13 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ARG VITE_CELEBRATION_ID=3fe69f43-ef7c-4aef-9ba1-0e68275e0d98
 ENV VITE_CELEBRATION_ID=$VITE_CELEBRATION_ID
 
+# Google Maps JavaScript API key for the Events page (src/pages/EventsPage.tsx) —
+# override with --build-arg VITE_GOOGLE_MAPS_API_KEY=<key> per deployment.
+# Empty is fine: the page just shows a "map unavailable" message instead of
+# a map, same degrade-gracefully behavior as a missing key elsewhere.
+ARG VITE_GOOGLE_MAPS_API_KEY=
+ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+
 ENV CI=true
 
 RUN npm run build

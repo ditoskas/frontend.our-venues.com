@@ -38,6 +38,7 @@
       "contactLabel": "Email или Телефон",
       "sendButton": "Отправить",
       "codeLabel": "Код доступа",
+      "codeIssuedNote": "Ваш код: {{code}} — пока показывается прямо здесь, email/SMS ещё не отправляются.",
       "loginButton": "Войти",
       "genericError": "Что-то пошло не так. Попробуйте ещё раз."
     },
@@ -56,6 +57,57 @@
       "successAttending": "Спасибо, {{name}}! Мы записали вас как участника. Количество гостей: {{count}}.",
       "successDeclined": "Спасибо, что сообщили, {{name}}.",
       "searchAnother": "Ответить за другого человека"
+    },
+    "happeningNow": {
+      "addButton": "Добавить фото",
+      "modalTitle": "Поделиться фото",
+      "close": "Закрыть",
+      "loginIntro": "Подтвердите приглашение, чтобы поделиться фото.",
+      "locationLabel": "Место",
+      "titleLabel": "Название",
+      "descriptionLabel": "Описание (необязательно)",
+      "imageLabel": "Фото",
+      "imagePlaceholder": "Выберите фото",
+      "sendButton": "Отправить",
+      "successMessage": "Спасибо, что поделились — ваше фото теперь в ленте.",
+      "loading": "Загрузка ленты…",
+      "loadError": "Не удалось загрузить ленту. Попробуйте ещё раз.",
+      "empty": "Пока нет фото. Поделитесь первым моментом!"
+    },
+    "events": {
+      "loading": "Загрузка карты…",
+      "loadError": "Не удалось загрузить карту. Попробуйте ещё раз.",
+      "noKey": "Карта недоступна.",
+      "empty": "Мероприятия ещё не добавлены.",
+      "past": "Прошедшее",
+      "upcoming": "Предстоящее",
+      "noLocation": "Место не указано",
+      "directions": "Маршрут"
+    },
+    "live": {
+      "shareMemories": "Поделитесь с нами своими воспоминаниями!"
+    },
+    "receptionSeating": {
+      "empty": "Рассадка ещё не настроена.",
+      "layoutEmpty": "Схема рассадки для этого мероприятия ещё не настроена.",
+      "yourTableBadge": "Вы",
+      "tableGuestsTitle": "Гости за столом {{code}}",
+      "tableGuestsDefaultTitle": "Гости за столом",
+      "tableMaxPeople": "Вмещает до {{count}} гостей",
+      "selectTablePrompt": "Нажмите на стол, чтобы увидеть, кто там сидит.",
+      "searchPlaceholder": "Найдите своё имя…",
+      "searchNoResults": "Гость с таким именем не найден.",
+      "noGuestsAtTable": "За этим столом пока никто не назначен.",
+      "guestAttendees": "Гостей: {{count}}",
+      "closePanel": "Закрыть"
+    },
+    "guestList": {
+      "title": "Список Гостей",
+      "searchPlaceholder": "Поиск по имени или столу…",
+      "searchNoResults": "Ничего не найдено.",
+      "columnTable": "Стол",
+      "columnGuest": "Гость",
+      "columnAttendees": "Гостей"
     }
   },
   "notFound": {

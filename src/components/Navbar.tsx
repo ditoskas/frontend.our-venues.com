@@ -5,18 +5,32 @@ import { Monogram } from '@/components/Monogram'
 import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 import { useCelebration } from '@/context/CelebrationContext'
 
-const navItems: { to: string; end?: boolean; labelKey: string; icon: LucideIcon }[] = [
+const navItems: {
+  to: string
+  end?: boolean
+  labelKey: string
+  icon: LucideIcon
+  showKey?: 'showLive' | 'showSeating'
+}[] = [
   { to: '/', end: true, labelKey: 'nav.invitation', icon: Heart },
   { to: '/events', labelKey: 'nav.events', icon: CalendarDays },
   { to: '/reservation', labelKey: 'nav.reservation', icon: Ticket },
-  { to: '/reception-seating', labelKey: 'nav.receptionSeating', icon: Users },
-  { to: '/happening-now', labelKey: 'nav.happeningNow', icon: Sparkles },
+  { to: '/reception-seating', labelKey: 'nav.receptionSeating', icon: Users, showKey: 'showSeating' },
+  { to: '/happening-now', labelKey: 'nav.happeningNow', icon: Sparkles, showKey: 'showLive' },
 ]
 
 export function Navbar() {
   const { t } = useTranslation()
   const { celebration } = useCelebration()
   const { husband, wife } = celebration.coupleInfo
+  // Gate nav items behind their celebrationInfo.show* flag, if they have
+  // one — see PUBLIC-API.md's celebration route ("Reception Seating" /
+  // "Happening Now" / "Reservation" nav items are admin-toggled per
+  // celebration). "Reservation" doesn't have a showKey yet and always
+  // renders.
+  const visibleNavItems = navItems.filter(
+    (item) => !item.showKey || celebration.celebrationInfo[item.showKey]
+  )
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-natural-border bg-natural-bg/95 backdrop-blur-md">
@@ -32,7 +46,7 @@ export function Navbar() {
         </NavLink>
 
         <nav className="flex flex-1 items-center justify-center gap-1 overflow-x-auto sm:gap-2">
-          {navItems.map(({ to, end, labelKey, icon: Icon }) => (
+          {visibleNavItems.map(({ to, end, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

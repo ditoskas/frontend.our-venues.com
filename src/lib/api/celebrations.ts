@@ -24,6 +24,24 @@ export interface CelebrationTimelineItem {
   imageUrl: string | null
 }
 
+// A floor-plan drawing primitive from the admin's seating-layout editor —
+// round/rect tables (`code`/`maxPeople`) or a free placeholder (`label`),
+// positioned by plain x/y/width/height pixels on a fixed 1400x900 logical
+// canvas (see PUBLIC-API.md / backend's EventSeatingLayoutEditor.tsx).
+export type SeatingElementType = 'table-circle' | 'table-rect' | 'placeholder'
+
+export interface SeatingLayoutElement {
+  id: string
+  type: SeatingElementType
+  x: number
+  y: number
+  width: number
+  height: number
+  code?: string
+  maxPeople?: number
+  label?: string
+}
+
 export interface CelebrationEvent {
   id: string
   title: LocalizedText
@@ -36,6 +54,9 @@ export interface CelebrationEvent {
   country: string | null
   mapLat: number | null
   mapLng: number | null
+  /** Whether this event has a seating chart at all — see ReceptionSeatingPage.tsx. */
+  hasSeating: boolean
+  seatingLayout: SeatingLayoutElement[]
 }
 
 export interface PublicCelebration {
@@ -55,6 +76,12 @@ export interface PublicCelebration {
     invitationUrl: string | null
     maxGuestsPerInvitation: number | null
     showMaxGuests: boolean
+    /** Gates the "Reception Seating" nav item/page. */
+    showSeating: boolean
+    /** Gates the "Happening Now" nav item/page — see HappeningNowPage.tsx. */
+    showLive: boolean
+    /** Gates the "Reservation" nav item/page. */
+    showReservation: boolean
     /** Informational only — see CLAUDE.md "Celebration gate". Doesn't
      *  gate this response; the frontend acts on it. */
     isSitePublic: boolean
