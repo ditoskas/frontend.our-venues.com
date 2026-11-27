@@ -5,7 +5,7 @@
 The public-facing frontend for **o-gamos-mas.com**, a wedding and
 christening ("baptism") planning platform. This is the frontend
 implementation for the backend at
-`C:\Users\toska\My Drive (ditoskas@gmail.com)\MyProjects\our-venues.com\backend.our-venues.com` (a Next.js
+`C:\Users\toska\My Drive (ditoskas@gmail.com)\MyProjects\our-venues.com\app.our-venues.com` (a Next.js
 admin app with no public UI of its own) — this app is what consumes that
 backend's API.
 
@@ -128,7 +128,7 @@ sits above `MainLayout` in `App.tsx`'s route tree and, on load:
 3. Any failure — unknown guid, a celebration that isn't public yet, or a
    network/server error — also redirects to `/404`. The backend
    deliberately returns the same generic 404 for "no such guid" and "guid
-   exists but not public" (see `backend.our-venues.com/src/PUBLIC-API.md`
+   exists but not public" (see `app.our-venues.com/src/PUBLIC-API.md`
    — that file is the authoritative contract for every `/api/public/**`
    route), so the frontend can't and shouldn't try to tell those apart.
 4. On success, the fetched `PublicCelebration` + id are provided to every
@@ -325,7 +325,7 @@ side on desktop (`md:w-96` sidebar).
   Maps' own directions UI (`https://www.google.com/maps/dir/?api=1&destination=...`,
   lat/lng when available, else the joined address string) in a new tab.
 - **Loading the API**: `src/lib/googleMaps.ts` — a from-scratch copy of
-  backend.our-venues.com's own `lib/googleMaps.ts` (script-tag injection,
+  app.our-venues.com's own `lib/googleMaps.ts` (script-tag injection,
   cached loading promise), not shared code since the two apps don't share
   a package. **Deliberately omits `&loading=async`** from the script URL —
   with that flag, the script's `onload` fires once Google's small
@@ -367,7 +367,7 @@ const { data } = await apiClient.get('/professionals')
   `.env.example` / `.env.local`), defaulting to
   `http://localhost:3000/api` — the backend's local dev server.
 - This app should only ever call **`/api/public/**`** — per the backend's
-  `PUBLIC-API.md` (`backend.our-venues.com/src/PUBLIC-API.md`, the
+  `PUBLIC-API.md` (`app.our-venues.com/src/PUBLIC-API.md`, the
   authoritative contract), those are the only routes meant to be called
   directly by this frontend, and they're unauthenticated by design (a
   `Celebration.guid` is the entire access control, not a session) — no
@@ -392,7 +392,7 @@ listens on **3001** (not Vite's dev port 5173).
 - `VITE_API_BASE_URL` is baked into the JS bundle at build time (Vite env
   vars aren't readable at container runtime), so it must be passed as a
   build arg for a real deployment: `docker build --build-arg
-  VITE_API_BASE_URL=https://backend.our-venues.com/api .` — it defaults to
+  VITE_API_BASE_URL=https://app.our-venues.com/api .` — it defaults to
   the local dev backend otherwise.
 - `nginx.conf` does SPA fallback (`try_files … /index.html`) so
   react-router routes like `/events` resolve on a hard refresh, gzips

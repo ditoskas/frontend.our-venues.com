@@ -17,7 +17,7 @@ interface ReservationResponse {
 const isEmail = (value: string) => value.includes('@')
 
 // GET /api/public/reservations/confirm — see PUBLIC-API.md in
-// backend.our-venues.com. Real (non-stub) endpoint: matches `contact`
+// app.our-venues.com. Real (non-stub) endpoint: matches `contact`
 // against a guest's phone (exact) or email (case-insensitive) on the
 // celebration and records their RSVP.
 export async function submitReservation({
