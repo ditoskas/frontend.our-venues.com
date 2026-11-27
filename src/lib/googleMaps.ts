@@ -1,7 +1,7 @@
 // Lazily injects the Google Maps JavaScript API <script> tag once and caches
 // the loading promise, so remounting EventsPage (route re-entry) never
 // re-injects the script or re-requests the API. Mirrors
-// backend.our-venues.com's src/lib/googleMaps.ts (same loader shape, same
+// app.our-venues.com's src/lib/googleMaps.ts (same loader shape, same
 // Maps JS API), kept as a separate copy since the two apps don't share code.
 let loadPromise: Promise<typeof google> | null = null
 

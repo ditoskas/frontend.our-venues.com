@@ -7,7 +7,7 @@ export interface SeatingTableGuest {
 }
 
 // Mirrors GET /api/public/celebration/{guid}/seating — see PUBLIC-API.md
-// in backend.our-venues.com. Table capacity/position/code themselves come
+// in app.our-venues.com. Table capacity/position/code themselves come
 // from CelebrationEvent.seatingLayout (already fetched by CelebrationGate);
 // this only adds guests (name + attendee count) on top, for the "who's at
 // this table" panel.

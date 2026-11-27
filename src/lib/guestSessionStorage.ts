@@ -14,7 +14,7 @@ export interface VerifiedGuestSession {
 // Remembers, per celebration, the last guest identity a visitor
 // successfully verified via GuestLoginForm's 2FA flow (GET
 // /api/public/access/confirm, see PUBLIC-API.md in
-// backend.our-venues.com) — both the plain `contact` string and the
+// app.our-venues.com) — both the plain `contact` string and the
 // signed guest session `token` it returns — so a returning visitor (or a
 // guest moving between the access gate, the reservation page, and the
 // "add a Live Events photo" modal within the same browser session) isn't

@@ -3,7 +3,7 @@ import type { MonogramType } from '@/components/Monogram'
 import type { SupportedLanguage } from '@/i18n'
 
 // Mirrors GET /api/public/celebration/{guid} — see PUBLIC-API.md in
-// backend.our-venues.com. Every field the backend doesn't have set comes
+// app.our-venues.com. Every field the backend doesn't have set comes
 // back as null (never omitted), so these types don't mark them optional.
 
 /** A translatable field — one entry per supported language, null where unset. */

@@ -1,7 +1,7 @@
 import { apiClient } from '@/lib/apiClient'
 
 // Mirrors GET /api/public/celebration/{guid}/live-events — see
-// PUBLIC-API.md in backend.our-venues.com. Unlike the admin's Live Events
+// PUBLIC-API.md in app.our-venues.com. Unlike the admin's Live Events
 // table, the public feed doesn't include who posted each item (the guest
 // list is never exposed publicly) — title/description are plain free text
 // as the guest typed them, not LocalizedText.
