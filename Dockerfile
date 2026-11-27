@@ -9,7 +9,7 @@ RUN npm ci
 COPY . .
 
 # Vite env vars are baked in at build time, not read at container runtime —
-# override with --build-arg VITE_API_BASE_URL=https://backend.o-gamos-mas.com/api
+# override with --build-arg VITE_API_BASE_URL=https://backend.our-venues.com/api
 # (or whatever the deployed backend's public origin is) for a production build.
 ARG VITE_API_BASE_URL=http://localhost:3000/api
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL

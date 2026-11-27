@@ -21,7 +21,7 @@ export interface ConfirmAccessResult {
 }
 
 // GET /api/public/access/confirm — see PUBLIC-API.md in
-// backend.o-gamos-mas.com. Shared by AccessGatePage (site-wide access
+// backend.our-venues.com. Shared by AccessGatePage (site-wide access
 // gate) and GuestLoginForm (reservation page) — called once without
 // `code` to request one, then again with it to verify.
 export async function confirmAccess({ guid, contact, code }: ConfirmAccessParams): Promise<ConfirmAccessResult> {
