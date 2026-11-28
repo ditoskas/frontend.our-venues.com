@@ -392,8 +392,10 @@ Search + guest list sorted by name + per-event check-in popup + floor plan
 (`SeatingLayoutViewer`, the tapped guest's table highlighted). Data:
 `src/lib/api/checkin.ts` (backend `/api/public/checkin/…`, key as
 `X-Checkin-Key`); on-device snapshot/queue/key in `src/lib/checkinStore.ts`
-(check-ins show immediately, queued until **Sync**; latest `attendedAt` wins,
-same rule as the server). The page registers the backend's service worker
+(check-ins show immediately and sync automatically while online — right
+after each check-in, on reconnect, on reopen; offline they queue, and the
+**Sync** button is a manual fallback; latest `attendedAt` wins, same rule as
+the server). The page registers the backend's service worker
 (`/api/site/checkin-sw`) for the offline shell and posts it the files to keep.
 Not on the public navbar. See the backend CLAUDE.md "Door check-in".
 

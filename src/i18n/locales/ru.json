@@ -132,6 +132,7 @@
       "declined": "отказался",
       "arrived": "Пришли: {{count}} · {{time}}",
       "notArrived": "Не пришёл",
+      "hideList": "Скрыть список",
       "layout": "Схема зала",
       "participants": "Сколько человек пришло",
       "confirm": "Подтвердить приход",

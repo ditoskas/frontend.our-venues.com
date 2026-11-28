@@ -127,6 +127,7 @@
       "declined": "declined",
       "arrived": "Arrived: {{count}} · {{time}}",
       "notArrived": "Not arrived",
+      "hideList": "Hide list",
       "layout": "Layout",
       "participants": "People who actually came",
       "confirm": "Confirm arrival",
