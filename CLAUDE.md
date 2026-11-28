@@ -416,6 +416,12 @@ Production `Dockerfile` is a 2-stage build — `node:22-alpine` runs
 `frontend.giannistoskas.com` elsewhere in this workspace. The container
 listens on **3001** (not Vite's dev port 5173).
 
+- **Production deploy** isn't this Dockerfile: `server-scripts`'
+  `deployments/deployment-our-venues-celebration-site.yml` builds the app on the server for
+  `o-gamos-mas.com` / `vaftizomai.com` (frontend env: `VITE_API_BASE_URL=/api`, optional
+  `VITE_GOOGLE_MAPS_API_KEY`; never `VITE_CELEBRATION_ID` — that's a dev-only fallback) and nginx
+  serves the build at `/site/`. See the backend's `docs/CELEBRATION-SUBDOMAINS.md` →
+  "Production rollout".
 - `VITE_API_BASE_URL` is baked into the JS bundle at build time (Vite env
   vars aren't readable at container runtime), so it must be passed as a
   build arg for a real deployment: `docker build --build-arg
