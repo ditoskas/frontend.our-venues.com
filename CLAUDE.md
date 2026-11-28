@@ -45,6 +45,15 @@ visually consistent across languages instead of swapping fonts per locale.
 There is no dark-mode variant — the theme is a single warm/light palette by
 design.
 
+**Favicons** are the same brand-kit set as the admin (`app.our-venues.com/src/public/`):
+`favicon.ico`, `favicon-{16,32,48}x*.png`, `apple-touch-icon.png`, the
+`android-chrome-*` / `maskable-icon-*` PNGs and `site.webmanifest`, in
+`public/` and linked from `index.html`. If the brand icons change, copy them
+from the app again. Unlike the app's manifest, this one uses **relative** icon
+paths and no fixed `start_url`/`scope`, because the build is served under
+`/site/` and the site itself runs at `/` (subdomains) or
+`/celebrations/{guid}` (permanent link).
+
 ## Internationalization
 
 3 languages: **Greek (`el`, default)**, **English (`en`)**, **Russian
