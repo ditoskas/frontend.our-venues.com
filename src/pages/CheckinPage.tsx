@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
@@ -102,12 +102,16 @@ export function CheckinPage() {
   })
   const [stored, setStored] = useState(() => (guid ? loadSnapshot(guid) : null))
   const [queue, setQueue] = useState<CheckinRecord[]>(() => (guid ? loadQueue(guid) : []))
+  // The queue as of now (state lags a render; storage may be blocked).
+  const queueRef = useRef(queue)
+  const syncingRef = useRef(false)
   const [access, setAccess] = useState<Access>('ok')
   const [loading, setLoading] = useState(() => !stored)
   const [syncing, setSyncing] = useState(false)
   const [syncError, setSyncError] = useState(false)
   const [eventId, setEventId] = useState<string | null>(null)
   const [query, setQuery] = useState('')
+  const [hideList, setHideList] = useState(false)
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null)
   const [dialogGuest, setDialogGuest] = useState<CheckinGuest | null>(null)
   const [participants, setParticipants] = useState(1)
@@ -210,33 +214,51 @@ export function CheckinPage() {
       actualParticipants: Math.max(0, Math.min(100, Math.round(participants))),
       attendedAt: new Date().toISOString(),
     }
-    const next = [...queue, record]
+    const next = [...queueRef.current, record]
+    queueRef.current = next
     saveQueue(guid, next)
     setQueue(next)
+    setSyncError(false) // a new check-in retries a failed auto-sync
     setDialogGuest(null)
   }
 
-  const sync = async () => {
-    if (!guid || syncing) return
+  const sync = useCallback(async () => {
+    if (!guid || syncingRef.current) return
+    syncingRef.current = true
     setSyncing(true)
     setSyncError(false)
-    const sending = queue
+    const sending = queueRef.current
     try {
       const result = sending.length
         ? await syncCheckins(guid, key, sending)
         : { snapshot: await getCheckinSnapshot(guid, key) }
       keepSnapshot(result.snapshot)
       // Keep anything recorded while the request was in flight.
-      const rest = loadQueue(guid).slice(sending.length)
+      const rest = queueRef.current.slice(sending.length)
+      queueRef.current = rest
       saveQueue(guid, rest)
       setQueue(rest)
       setAccess('ok')
     } catch (err) {
       if (!handleAuthError(err)) setSyncError(true)
     } finally {
+      syncingRef.current = false
       setSyncing(false)
     }
-  }
+  }, [guid, key, keepSnapshot, handleAuthError])
+
+  // Auto-sync: whenever we're online and check-ins are waiting — right after
+  // a check-in, when the connection comes back, when the page reopens with
+  // a queue, and again for anything recorded during a sync. A failed sync
+  // isn't retried in a loop: the next check-in, reconnect or Sync tap does.
+  useEffect(() => {
+    if (online) setSyncError(false)
+  }, [online])
+  useEffect(() => {
+    if (online && queue.length > 0 && !syncing && !syncError && access === 'ok' && stored) {
+      void sync()
+    }
+  }, [online, queue, syncing, syncError, access, stored, sync])
 
   if (!guid) return <Message title={t('pages.checkin.notFound')} />
   if (loading) return <LoadingScreen />
@@ -264,6 +286,9 @@ export function CheckinPage() {
     selectedGuest && activeEvent
       ? (selectedGuest.tableAssignments.find((a) => a.eventId === activeEvent.id)?.tableId ?? null)
       : null
+  // The list can be hidden to see the floor plan on its own (only offered
+  // when there is one, so the page is never left empty).
+  const hasLayout = !!activeEvent?.hasSeating && activeEvent.seatingLayout.length > 0
   const timeFormat = new Intl.DateTimeFormat(lang, { hour: '2-digit', minute: '2-digit' })
 
   return (
@@ -326,6 +351,7 @@ export function CheckinPage() {
         </select>
       )}
 
+      {!(hideList && hasLayout) && (
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-natural-muted" />
         <input
@@ -336,12 +362,27 @@ export function CheckinPage() {
           className="w-full rounded-md border border-natural-border bg-white py-2 pr-3 pl-9 text-sm"
         />
       </div>
+      )}
 
-      <p className="flex items-center gap-2 text-sm text-natural-muted">
-        <Users className="h-4 w-4" />
-        {t('pages.checkin.stats', { checked: stats.guests, total: stats.total, people: stats.people })}
-      </p>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-sm text-natural-muted">
+        <p className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          {t('pages.checkin.stats', { checked: stats.guests, total: stats.total, people: stats.people })}
+        </p>
+        {hasLayout && (
+          <label className="flex cursor-pointer items-center gap-2 select-none">
+            <input
+              type="checkbox"
+              checked={hideList}
+              onChange={(e) => setHideList(e.target.checked)}
+              className="h-4 w-4 accent-natural-accent"
+            />
+            {t('pages.checkin.hideList')}
+          </label>
+        )}
+      </div>
 
+      {!(hideList && hasLayout) && (
       <ul className="divide-y divide-natural-border overflow-hidden rounded-lg border border-natural-border bg-white">
         {guests.length === 0 && <li className="px-4 py-6 text-center text-sm text-natural-muted">{t('pages.checkin.noGuests')}</li>}
         {guests.map((g) => {
@@ -378,8 +419,9 @@ export function CheckinPage() {
           )
         })}
       </ul>
+      )}
 
-      {activeEvent?.hasSeating && activeEvent.seatingLayout.length > 0 && (
+      {hasLayout && activeEvent && (
         <section className="flex flex-col gap-2">
           <h2 className="font-serif text-lg">{t('pages.checkin.layout')}</h2>
           <SeatingLayoutViewer elements={activeEvent.seatingLayout} myTableId={myTableId} />

@@ -127,6 +127,7 @@
       "declined": "αρνήθηκε",
       "arrived": "Ήρθαν: {{count}} · {{time}}",
       "notArrived": "Δεν ήρθε",
+      "hideList": "Απόκρυψη λίστας",
       "layout": "Διάταξη",
       "participants": "Άτομα που ήρθαν",
       "confirm": "Επιβεβαίωση άφιξης",
