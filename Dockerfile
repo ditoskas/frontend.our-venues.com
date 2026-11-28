@@ -34,7 +34,9 @@ RUN npm run build
 # Stage 2: Serve the built app with nginx
 FROM nginx:alpine
 
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Vite builds with base "/site/" (see vite.config.ts), so the output lives
+# under /site/ here too.
+COPY --from=builder /app/dist /usr/share/nginx/html/site
 COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 3001

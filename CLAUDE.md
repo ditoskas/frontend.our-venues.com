@@ -136,6 +136,19 @@ sits above `MainLayout` in `App.tsx`'s route tree and, on load:
    — this is what `Navbar` and `InvitationPage` pull the couple's real
    names/date/type from for `<Monogram>`, instead of hardcoded demo data.
 
+**How the page is served in practice** (see the backend's
+`docs/CELEBRATION-SUBDOMAINS.md`): the backend's `/api/site/entry` serves
+this app's `index.html` for the permanent link
+`app.our-venues.com/celebrations/{guid}` and for active celebration
+subdomains (`{label}.o-gamos-mas.com` / `{label}.vaftizomai.com`), injecting
+`window.celebrationId` **and** `window.celebrationBasePath`. The latter is
+the react-router `basename` (`routerBasename()` in
+`src/lib/celebrationId.ts`): `/celebrations/{guid}` on the permanent link,
+`/` on a subdomain, and Vite's `base` (`/site`) when the app is opened
+directly. Every in-app link must stay router-relative (`<Link to="events">`
+/ `navigate('/events')` under the basename) — never hardcode an absolute
+URL path.
+
 `VITE_CELEBRATION_ID` (`.env.example`/`.env.local`) is a **dev-only**
 convenience — `seedCelebrationIdFromEnv()` in `src/lib/celebrationId.ts`
 sets `window.celebrationId` from it at boot (`main.tsx`), but only if
@@ -365,7 +378,11 @@ const { data } = await apiClient.get('/professionals')
 
 - The instance's `baseURL` comes from `VITE_API_BASE_URL` (see
   `.env.example` / `.env.local`), defaulting to
-  `http://localhost:3000/api` — the backend's local dev server.
+  `http://localhost:3000/api` — the backend's local dev server. Production
+  and the Docker setup use the same-origin **`/api`**: wherever the page is
+  served from (permanent link or subdomain), `/api` is the backend. For the
+  Vite dev server, `VITE_API_PROXY_TARGET` makes it forward `/api` to the
+  backend (`vite.config.ts`).
 - This app should only ever call **`/api/public/**`** — per the backend's
   `PUBLIC-API.md` (`app.our-venues.com/src/PUBLIC-API.md`, the
   authoritative contract), those are the only routes meant to be called
@@ -383,12 +400,28 @@ const { data } = await apiClient.get('/professionals')
 
 ## Docker
 
+**All built assets live under `/site/`** (`base: '/site/'` in
+`vite.config.ts`), so one build works on every host and path; the dev
+server also serves at `/site/` (open `http://localhost:3001/site/`).
+`server.allowedHosts` accepts `frontend` (requests proxied by the backend
+over Docker) and `*.localhost`, and `VITE_HMR_CLIENT_PORT` points HMR at
+this server when the page is served through the backend (port 3000).
+
+The local Docker setup (backend repo's `docker-compose.yml`) runs the **Vite
+dev server** (`Dockerfile.dev`), not the production image below.
+
 Production `Dockerfile` is a 2-stage build — `node:22-alpine` runs
 `npm ci && npm run build`, then the static `dist/` output is copied into
 `nginx:alpine` (config in `nginx.conf`), matching the pattern used by
 `frontend.giannistoskas.com` elsewhere in this workspace. The container
 listens on **3001** (not Vite's dev port 5173).
 
+- **Production deploy** isn't this Dockerfile: `server-scripts`'
+  `deployments/deployment-our-venues-celebration-site.yml` builds the app on the server for
+  `o-gamos-mas.com` / `vaftizomai.com` (frontend env: `VITE_API_BASE_URL=/api`, optional
+  `VITE_GOOGLE_MAPS_API_KEY`; never `VITE_CELEBRATION_ID` — that's a dev-only fallback) and nginx
+  serves the build at `/site/`. See the backend's `docs/CELEBRATION-SUBDOMAINS.md` →
+  "Production rollout".
 - `VITE_API_BASE_URL` is baked into the JS bundle at build time (Vite env
   vars aren't readable at container runtime), so it must be passed as a
   build arg for a real deployment: `docker build --build-arg
@@ -397,6 +430,8 @@ listens on **3001** (not Vite's dev port 5173).
 - `nginx.conf` does SPA fallback (`try_files … /index.html`) so
   react-router routes like `/events` resolve on a hard refresh, gzips
   text/js/css/svg/font responses, and sets a 1-year immutable
-  `Cache-Control` on `/assets/*` since Vite content-hashes those filenames.
+  `Cache-Control` on `/site/assets/*` since Vite content-hashes those
+  filenames. The build is copied to `/usr/share/nginx/html/site`, and `/`
+  redirects to `/site/`.
 - Verified end-to-end with `docker build` + `docker run` — root, a deep
   client-side route, and asset gzip/cache headers all check out.

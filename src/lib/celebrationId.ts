@@ -31,3 +31,19 @@ export function seedCelebrationIdFromEnv(): void {
     window.celebrationId = fallback
   }
 }
+
+/**
+ * The react-router basename. When the backend serves the page it sets
+ * `window.celebrationBasePath` ("/celebrations/{guid}" on the permanent link,
+ * "/" on a subdomain). Otherwise (standalone dev/preview) the app lives at
+ * Vite's `base` ("/site/").
+ */
+export function routerBasename(): string | undefined {
+  const fromWindow = window.celebrationBasePath
+  const base =
+    typeof fromWindow === 'string' && fromWindow.trim() !== ''
+      ? fromWindow.trim()
+      : import.meta.env.BASE_URL
+  const trimmed = base.replace(/\/+$/, '')
+  return trimmed === '' ? undefined : trimmed
+}
