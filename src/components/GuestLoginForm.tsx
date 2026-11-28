@@ -70,6 +70,8 @@ export function GuestLoginForm({ onVerified }: GuestLoginFormProps) {
             contact: contact.trim(),
             token: result.token,
             expiresAt: result.expiresAt,
+            displayName: result.displayName,
+            maxAttendees: result.maxAttendees ?? null,
           })
         }
         onVerified(contact.trim(), result)

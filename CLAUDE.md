@@ -158,6 +158,14 @@ directly. Every in-app link must stay router-relative (`<Link to="events">`
 / `navigate('/events')` under the basename) — never hardcode an absolute
 URL path.
 
+**Personal invitation links** (`…?invite=<code>`): `CelebrationGate` redeems
+the code (`redeemInvite()` → `GET /api/public/access/invite`, see the
+backend's PUBLIC-API.md) before rendering, stores the guest session
+(`setVerifiedGuestSession`, now also `displayName`/`maxAttendees`), grants
+site access (a private site opens directly), and removes `invite` from the
+URL. `ReservationPage` starts on the RSVP form when such a session exists.
+An invalid/expired code is ignored (normal visitor flow).
+
 `VITE_CELEBRATION_ID` (`.env.example`/`.env.local`) is a **dev-only**
 convenience — `seedCelebrationIdFromEnv()` in `src/lib/celebrationId.ts`
 sets `window.celebrationId` from it at boot (`main.tsx`), but only if

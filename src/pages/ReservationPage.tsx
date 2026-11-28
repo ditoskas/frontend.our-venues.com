@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Check, X, ShieldCheck, Users } from 'lucide-react'
 import { useCelebration } from '@/context/CelebrationContext'
 import { GuestLoginForm } from '@/components/GuestLoginForm'
+import { getVerifiedGuestSession } from '@/lib/guestSessionStorage'
 import { submitReservation } from '@/lib/api/reservations'
 import type { ConfirmAccessResult } from '@/lib/api/access'
 
@@ -13,10 +14,16 @@ export function ReservationPage() {
   const { celebrationId, celebration } = useCelebration()
   const { showMaxGuests } = celebration.celebrationInfo
 
-  const [step, setStep] = useState<Step>('login')
-  const [contact, setContact] = useState('')
-  const [displayName, setDisplayName] = useState('')
-  const [maxAttendees, setMaxAttendees] = useState<number | null>(null)
+  // A guest already signed in on this browser (code login, or their personal
+  // invitation link) goes straight to the RSVP form.
+  const [session] = useState(() => {
+    const stored = getVerifiedGuestSession(celebrationId)
+    return stored?.displayName ? stored : null
+  })
+  const [step, setStep] = useState<Step>(session ? 'form' : 'login')
+  const [contact, setContact] = useState(session?.contact ?? '')
+  const [displayName, setDisplayName] = useState(session?.displayName ?? '')
+  const [maxAttendees, setMaxAttendees] = useState<number | null>(session?.maxAttendees ?? null)
 
   const [willAttend, setWillAttend] = useState<boolean | null>(null)
   const [partySize, setPartySize] = useState(1)

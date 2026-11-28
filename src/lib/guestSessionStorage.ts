@@ -4,11 +4,18 @@ interface StoredGuestSession {
   contact: string
   token: string
   expiresAt: string
+  displayName?: string
+  maxAttendees?: number | null
 }
 
 export interface VerifiedGuestSession {
   contact: string
   token: string
+  // Remembered so the reservation page can greet the guest and cap their
+  // party size without asking them to sign in again (e.g. after opening their
+  // personal invitation link).
+  displayName?: string
+  maxAttendees?: number | null
 }
 
 // Remembers, per celebration, the last guest identity a visitor
@@ -41,7 +48,12 @@ export function getVerifiedGuestSession(celebrationId: string): VerifiedGuestSes
     const parsed = JSON.parse(raw) as Partial<StoredGuestSession>
     if (!parsed.contact || !parsed.token || !parsed.expiresAt) return null
     if (new Date(parsed.expiresAt).getTime() <= Date.now()) return null
-    return { contact: parsed.contact, token: parsed.token }
+    return {
+      contact: parsed.contact,
+      token: parsed.token,
+      displayName: parsed.displayName,
+      maxAttendees: parsed.maxAttendees,
+    }
   } catch {
     return null
   }
