@@ -20,6 +20,21 @@ export interface ConfirmAccessResult {
   expiresAt?: string
 }
 
+export interface RedeemInviteResult extends ConfirmAccessResult {
+  /** The guest's own email or phone — what the RSVP endpoint matches on. */
+  contact?: string
+}
+
+// GET /api/public/access/invite — see PUBLIC-API.md in app.our-venues.com.
+// A guest's personal invitation link (…?invite=<code>) signs them in
+// directly: same result as access/confirm's verified step, plus `contact`.
+export async function redeemInvite(guid: string, invite: string): Promise<RedeemInviteResult> {
+  const { data } = await apiClient.get<RedeemInviteResult>('/public/access/invite', {
+    params: { guid, invite },
+  })
+  return data
+}
+
 // GET /api/public/access/confirm — see PUBLIC-API.md in
 // app.our-venues.com. Shared by AccessGatePage (site-wide access
 // gate) and GuestLoginForm (reservation page) — called once without
