@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { routerBasename } from '@/lib/celebrationId'
 import { CelebrationGate } from '@/components/CelebrationGate'
 import { PrivacySiteGate } from '@/components/PrivacySiteGate'
 import { MainLayout } from '@/layouts/MainLayout'
@@ -14,7 +15,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={routerBasename()}>
       <Routes>
         <Route element={<CelebrationGate />}>
           <Route path="access" element={<AccessGatePage />} />
