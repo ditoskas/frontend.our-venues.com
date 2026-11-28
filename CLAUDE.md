@@ -382,6 +382,21 @@ side on desktop (`md:w-96` sidebar).
   package (like this one) needs to be added there explicitly or it won't
   resolve.
 
+## Door check-in page
+
+`src/pages/CheckinPage.tsx`, route `checkin` — **outside** `CelebrationGate`/
+`PrivacySiteGate` (own access rule, must start with no network). Opened from
+the admin's Events tab (`?event=` preselects the event) or a staff link
+(`?key=`, stored per celebration so the page still works reopened offline).
+Search + guest list sorted by name + per-event check-in popup + floor plan
+(`SeatingLayoutViewer`, the tapped guest's table highlighted). Data:
+`src/lib/api/checkin.ts` (backend `/api/public/checkin/…`, key as
+`X-Checkin-Key`); on-device snapshot/queue/key in `src/lib/checkinStore.ts`
+(check-ins show immediately, queued until **Sync**; latest `attendedAt` wins,
+same rule as the server). The page registers the backend's service worker
+(`/api/site/checkin-sw`) for the offline shell and posts it the files to keep.
+Not on the public navbar. See the backend CLAUDE.md "Door check-in".
+
 ## Talking to the backend
 
 Every API call goes through the shared axios instance at

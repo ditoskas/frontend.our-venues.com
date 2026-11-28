@@ -12,6 +12,7 @@ import { ReservationPage } from '@/pages/ReservationPage'
 import { HappeningNowPage } from '@/pages/HappeningNowPage'
 import { LiveDisplayPage } from '@/pages/LiveDisplayPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { CheckinPage } from '@/pages/CheckinPage'
 
 function App() {
   return (
@@ -38,6 +39,9 @@ function App() {
           </Route>
         </Route>
 
+        {/* Door check-in: own access rule (login or staff key) and offline
+            support, so it sits outside CelebrationGate / PrivacySiteGate. */}
+        <Route path="checkin" element={<CheckinPage />} />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
