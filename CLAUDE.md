@@ -42,8 +42,25 @@ original template's Playfair Display/Inter because it has full Greek +
 Cyrillic + Latin glyph coverage in one family — needed since the site ships
 in el/en/ru — so headings, body copy, and the `Monogram` component all stay
 visually consistent across languages instead of swapping fonts per locale.
-There is no dark-mode variant — the theme is a single warm/light palette by
-design.
+There is no dark-mode variant — every theme (below) is a single warm/light
+palette by design, same fonts throughout.
+
+**Multiple palettes, one token set.** The table above is the *default*
+(Marriage) palette. A Christening celebration gets one of three others —
+`christening-boy`, `christening-girl`, or a gender-neutral `christening`
+fallback — chosen by `resolveTheme()` (`src/lib/theme.ts`) from the
+celebration's `type`/`childGender` (`childGender` only ever set on a
+Christening, via the backend admin's Celebration Info tab — see
+`PUBLIC-API.md` there). `CelebrationGate.tsx` calls it once the celebration
+loads and stamps the result onto `<html data-theme="...">` (or removes the
+attribute for a Marriage); `index.css` redeclares the same
+`--color-natural-*` custom properties under `:root[data-theme="..."]`
+selectors, so every `bg-natural-*`/`text-natural-*`/etc. utility (which
+Tailwind v4 already compiles to `var(--color-natural-*)`) repaints
+automatically — no component needs to know which theme is active, and
+there's nothing to import/switch anywhere else. Add a fourth palette the
+same way: a new `:root[data-theme="..."]` block in `index.css` plus a new
+case in `resolveTheme()`.
 
 ## Internationalization
 
@@ -135,6 +152,8 @@ sits above `MainLayout` in `App.tsx`'s route tree and, on load:
    nested route via `useCelebration()` (`src/context/CelebrationContext.tsx`)
    — this is what `Navbar` and `InvitationPage` pull the couple's real
    names/date/type from for `<Monogram>`, instead of hardcoded demo data.
+   The same success step also stamps the celebration's `data-theme` onto
+   `<html>` — see "Theme" above.
 
 `VITE_CELEBRATION_ID` (`.env.example`/`.env.local`) is a **dev-only**
 convenience — `seedCelebrationIdFromEnv()` in `src/lib/celebrationId.ts`

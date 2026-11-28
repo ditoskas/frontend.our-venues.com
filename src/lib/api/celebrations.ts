@@ -59,9 +59,16 @@ export interface CelebrationEvent {
   seatingLayout: SeatingLayoutElement[]
 }
 
+/** Only ever non-null for a Christening (never a Marriage) — see resolveTheme() in `@/lib/theme`. */
+export type ChildGender = 'Boy' | 'Girl'
+
 export interface PublicCelebration {
   guid: string
   type: MonogramType
+  /** Only settable when `type === 'Christening'` — picks that celebration's
+   *  guest-site theme, see `@/lib/theme`. `null` for a Marriage, or a
+   *  Christening whose gender hasn't been chosen yet. */
+  childGender: ChildGender | null
   /** Locales the admin is actively maintaining translations in for this
    *  celebration — a hint for e.g. the language switcher, not a filter:
    *  every LocalizedText field below still returns all locales regardless. */

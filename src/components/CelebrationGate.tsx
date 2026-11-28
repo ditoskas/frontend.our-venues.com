@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { CelebrationProvider } from '@/context/CelebrationContext'
 import { resolveCelebrationId } from '@/lib/celebrationId'
 import { getPublicCelebration, type PublicCelebration } from '@/lib/api/celebrations'
+import { resolveTheme } from '@/lib/theme'
 import { LoadingScreen } from '@/components/LoadingScreen'
 
 type GateState =
@@ -42,6 +43,23 @@ export function CelebrationGate() {
       cancelled = true
     }
   }, [celebrationId])
+
+  // Stamps `data-theme` on <html> once the celebration's loaded, driving the
+  // `[data-theme="..."]` palette overrides in index.css — see
+  // `@/lib/theme`'s resolveTheme() and CLAUDE.md "Theme". Applied here
+  // (above PrivacySiteGate/MainLayout) so it also covers /access and /live,
+  // not just the main site chrome.
+  useEffect(() => {
+    const theme = state.status === 'ready' ? resolveTheme(state.celebration) : undefined
+    if (theme) {
+      document.documentElement.dataset.theme = theme
+    } else {
+      delete document.documentElement.dataset.theme
+    }
+    return () => {
+      delete document.documentElement.dataset.theme
+    }
+  }, [state])
 
   if (!celebrationId || state.status === 'error') {
     return <Navigate to="/404" replace />

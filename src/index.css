@@ -68,9 +68,51 @@
   --font-monogram: "Alegreya", Georgia, serif;
 }
 
+/* Christening themes — CelebrationGate stamps one of these onto <html> as
+   `data-theme` based on the celebration's `type`/`childGender` (see
+   `@/lib/theme`'s resolveTheme()) once the celebration's loaded; a Marriage
+   never gets a `data-theme` attribute, so it keeps the default warm palette
+   above untouched. Redeclaring the same `--color-natural-*` custom
+   properties `@theme` already emitted onto `:root` is the standard Tailwind
+   v4 way to override them — every `bg-natural-*`/`text-natural-*`/etc.
+   utility already compiles to `var(--color-natural-*)`, so no component
+   needs to know which theme is active. See CLAUDE.md "Theme".*/
+:root[data-theme="christening-boy"] {
+  --color-natural-bg: #f2f8fc;
+  --color-natural-text: #2f4256;
+  --color-natural-accent: #5b9bd5;
+  --color-natural-border: #d7e8f5;
+  --color-natural-muted: #5f7a91;
+  --color-natural-soft: #e9f3fb;
+  --color-natural-dashed: #b9d9ef;
+}
+
+:root[data-theme="christening-girl"] {
+  --color-natural-bg: #fdf3f6;
+  --color-natural-text: #55303f;
+  --color-natural-accent: #e2799e;
+  --color-natural-border: #f6dde6;
+  --color-natural-muted: #8c5c6c;
+  --color-natural-soft: #fbe8ee;
+  --color-natural-dashed: #f0c3d3;
+}
+
+/* Gender-neutral fallback — a Christening whose child's gender hasn't been
+   set in the admin yet still gets a playful (lavender/mint) palette instead
+   of the Marriage one. */
+:root[data-theme="christening"] {
+  --color-natural-bg: #f7f5fb;
+  --color-natural-text: #3d3752;
+  --color-natural-accent: #9b87c4;
+  --color-natural-border: #e6e0f2;
+  --color-natural-muted: #6f6489;
+  --color-natural-soft: #efe9f8;
+  --color-natural-dashed: #d7cbec;
+}
+
 body {
-  background-color: #fdfbf7;
-  color: #4a4a3a;
+  background-color: var(--color-natural-bg);
+  color: var(--color-natural-text);
   font-family: var(--font-serif);
 }
 
